@@ -60,20 +60,21 @@ public class Main extends Application {
             for (int j = 0; j < width; j++) {
                 Mine tempMine = new Mine(j, i, MINE_SIZE, game.getGameBoard()[i][j]);
                 tempMine.setOnMouseClicked(e -> {
+                    boolean lost = false;
                     if (e.getButton() == MouseButton.PRIMARY) {
-                        boolean lost = game.clickSquare(tempMine.getXPos(), tempMine.getYPos());
+                        lost = game.clickSquare(tempMine.getXPos(), tempMine.getYPos());
                         buildWindow(primaryStage, game);
-                        if (lost) {
-                            lostGame(primaryStage, game);
-                        }
-                        else if (game.checkWon()) {
-                            wonGame(primaryStage, game);
-                        }
                     }
                     else if (e.getButton() == MouseButton.SECONDARY) {
-                        game.flagSquare(tempMine.getXPos(), tempMine.getYPos());
-                        
+                        lost = game.flagOrClear(tempMine.getXPos(), tempMine.getYPos());
                         buildWindow(primaryStage, game);
+                    }
+
+                    if (lost) {
+                        lostGame(primaryStage, game);
+                    }
+                    else if (game.checkWon()) {
+                        wonGame(primaryStage, game);
                     }
                 });
                 mineBoard.add(tempMine, j, i, 1, 1);

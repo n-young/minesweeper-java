@@ -98,13 +98,31 @@ class Game{
         return false;
     }
 
-    public void flagSquare(int x, int y) {
+    public boolean flagOrClear(int x, int y) {
         if (gameBoard[y][x] == 'F') {
             gameBoard[y][x] = '*';
         }
         else if (gameBoard[y][x] == '*') {
             gameBoard[y][x] = 'F';
         }
+        else {
+            if ((int) gameBoard[y][x] - 48 == numFlag(x, y)) {
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if ( (y + i >= 0)
+                            && (y + i < getHeight())
+                            && (x + j >= 0)
+                            && (x + j < getWidth())
+                            && (gameBoard[y + i][x + j] == '*')) {
+                                if (clickSquare(x + j, y + i)) {
+                                    return true;
+                                }
+                            }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
      /**
@@ -128,6 +146,22 @@ class Game{
                             count++;
                         }
                 }
+            }
+        }
+        return count;
+    }
+
+    private int numFlag(int x, int y) {
+        int count = 0;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if ( (y + i >= 0)
+                    && (y + i < getHeight())
+                    && (x + j >= 0)
+                    && (x + j < getWidth())
+                    && (gameBoard[y + i][x + j] == 'F')) {
+                        count++;
+                    }
             }
         }
         return count;
