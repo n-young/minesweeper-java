@@ -1,6 +1,4 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -30,7 +28,7 @@ public class Main extends Application {
 
     private void buildWindow(Stage primaryStage, Game game) {
         //Menu Bar 
-        Label minesRemaining = new Label("" + game.getMines());
+        Label minesRemaining = new Label("Mines Left: " + game.numRemaining());
         Label timeRemaining = new Label("0");
         Button smiley = new Button(":)");
         smiley.setOnAction(e -> resetGame(primaryStage, game));
@@ -74,6 +72,7 @@ public class Main extends Application {
                     }
                     else if (e.getButton() == MouseButton.SECONDARY) {
                         game.flagSquare(tempMine.getXPos(), tempMine.getYPos());
+                        
                         buildWindow(primaryStage, game);
                     }
                 });

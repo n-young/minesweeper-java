@@ -27,7 +27,6 @@ class Game{
         createGameBoard();
     }
 
-    
     /**
      * Initializes the Mine Board
      * @param initX the initial X click
@@ -53,11 +52,9 @@ class Game{
      * Initializes the Game Board
      */
     public void createGameBoard() {
-        int h = getHeight();
-        int w = getWidth();
-        char[][] gb = new char[h][w];
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
+        char[][] gb = new char[height][width];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 gb[i][j] = '*';
             }
         }
@@ -73,6 +70,9 @@ class Game{
             firstClick = false;
             createMineBoard(x, y);
             clickSquare(x, y);
+        }
+        else if (gameBoard[y][x] != '*') {
+            return false;
         }
         else if (mineBoard[y][x] == 1) {
             gameBoard[y][x] = 'X';
@@ -133,6 +133,18 @@ class Game{
         return count;
     }
 
+    public int numRemaining() {
+        int count = 0;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (gameBoard[i][j] == 'F') {
+                    count++;
+                }
+            }
+        }
+        return mines - count;
+    }
+
     /**
      * Checks if the player has won
      * @return      true if the player has won
@@ -150,27 +162,5 @@ class Game{
             return true;
         }
         return false;
-    }
-
-    /**
-     * Prints the given Board
-     * @see      the Mine Board, which contains only 0's and 1's
-     */
-    private void printBoard(int[][] board) {
-        for (int i = 0; i < getHeight(); i++) {
-            for (int j = 0; j < getWidth(); j++) {
-                System.out.print(board[i][j] + " | ");
-            }
-            System.out.println();
-        }
-    }
-
-    private void printBoard(char[][] board) {
-        for (int i = 0; i < getHeight(); i++) {
-            for (int j = 0; j < getWidth(); j++) {
-                System.out.print(board[i][j] + " | ");
-            }
-            System.out.println();
-        }
     }
 }
