@@ -1,81 +1,45 @@
-import java.util.Scanner;
-
 class Game{
     private int height; // Height of the board
     private int width; // Width of the board
     private int mines; // Number of mines
+    private boolean firstClick;
     private int[][] mineBoard; // Mine Board - contains mine location
     private char[][] gameBoard; // Game Board - contains Player View
-
-    public Game(int h, int w, int m) {
-        height = h;
-        width = w;
-        mines = m;
-        createMineBoard();
-        createGameBoard();
-    }
 
     public int getWidth() {return width;}
     public int getHeight() {return height;}
     public int getMines() {return mines;}
+    public boolean isFirstClick() {return firstClick;}
     public int[][] getMineBoard() {return mineBoard;}
     public char[][] getGameBoard() {return gameBoard;}
 
     /**
-     * Begins game play
-     * @see      the Game!
+     * Constructor
+     * @param h Game board height
+     * @param w Game board width
+     * @param m Number of mines
      */
-    public void playCLI() {
-        Scanner s = new Scanner(System.in);
-        // mineBoard = createMineBoard();
-        // gameBoard = createGameBoard();
-        boolean lost = false;
-        int x, y;
-        while (!lost) {
-            printGameBoard();
-            System.out.println();
-            // printMineBoard();
-            // System.out.println();
-            System.out.println("What is the x-value of the square you want to clear?");
-            x = s.nextInt();
-            System.out.println("What is the y-value of the square you want to clear?");
-            y = s.nextInt();
-            lost = clickSquare(x, y);
-            if (checkWon()) {
-                break;
-            }
-        }
-        if (lost) {
-            printGameBoard();
-            System.out.println();
-            // printMineBoard();
-            // System.out.println();
-            System.out.println("You Lose!");
-        }
-        else {
-            printGameBoard();
-            System.out.println();
-            // printMineBoard();
-            // System.out.println();
-            System.out.println("You Win!");            
-        }
-        s.close();
+    public Game(int h, int w, int m) {
+        height = h;
+        width = w;
+        mines = m;
+        firstClick = true;
+        createGameBoard();
     }
+
     
     /**
      * Initializes the Mine Board
-     * @return      the initialized Mine Board, which contains only 0's and 1's
+     * @param initX the initial X click
+     * @param initY the initial Y click
      */
-    public void createMineBoard() {
-        int h = getHeight();
-        int w = getWidth();
-        int m = getMines();
+    public void createMineBoard(int initX, int initY) {
         int x, y;
-        int[][] mb = new int[h][w];
-        for (int i = m; i > 0; i--) {
-            y = (int) (Math.random() * h);
-            x = (int) (Math.random() * w);
-            if (mb[y][x] == 1) {
+        int[][] mb = new int[height][width];
+        for (int i = mines; i > 0; i--) {
+            y = (int) (Math.random() * height);
+            x = (int) (Math.random() * width);
+            if (mb[y][x] == 1 || (Math.abs(x - initX) <= 1 && Math.abs(y - initY) <= 1)) {
                 i++;
             }
             else {
@@ -86,21 +50,7 @@ class Game{
     }
 
     /**
-     * Prints the Mine Board
-     * @see      the Mine Board, which contains only 0's and 1's
-     */
-    private void printMineBoard() {
-        for (int i = 0; i < getHeight(); i++) {
-            for (int j = 0; j < getWidth(); j++) {
-                System.out.print(mineBoard[i][j] + " | ");
-            }
-            System.out.println();
-        }
-    }
-
-    /**
      * Initializes the Game Board
-     * @return      the initialized Game Board, which contains only '*'s
      */
     public void createGameBoard() {
         int h = getHeight();
@@ -115,19 +65,49 @@ class Game{
     }
 
     /**
-     * Prints the Mine Board
-     * @see      the Game Board, which contains only '*'s and numbers from 0 - 8.
+     * Clicks a square, returns true if the square is a mine. Updates game board.
+     * @return      true if the square is a mine.
      */
-    private void printGameBoard() {
-        for (int i = 0; i < getHeight(); i++) {
-            for (int j = 0; j < getWidth(); j++) {
-                System.out.print(gameBoard[i][j] + " | ");
+    public boolean clickSquare(int x, int y) {
+        if (firstClick) {
+            firstClick = false;
+            createMineBoard(x, y);
+            clickSquare(x, y);
+        }
+        else if (mineBoard[y][x] == 1) {
+            gameBoard[y][x] = 'X';
+            return true;
+        }
+        else {
+            int num = numMines(x, y);
+            gameBoard[y][x] = (char) (num + '0');
+            if (num == 0) {
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if ( (y + i >= 0) && (y + i < height)
+                            && (x + j >= 0)
+                            && !(i == 0 && j == 0)
+                            && (x + j < getWidth())
+                            && (gameBoard[y + i][x + j] == '*')) {
+                                clickSquare(x + j, y + i);
+                            }
+                    }
+                }
             }
-            System.out.println();
+        }
+        return false;
+    }
+
+    public void flagSquare(int x, int y) {
+        if (gameBoard[y][x] == 'F') {
+            gameBoard[y][x] = '*';
+        }
+        else if (gameBoard[y][x] == '*') {
+            gameBoard[y][x] = 'F';
         }
     }
 
-    /**
+     /**
      * returns the number of mines surrounding a given position
      * on the board. Prints an error if the given position is a mine.
      * @return      the number of mines around a position
@@ -154,36 +134,6 @@ class Game{
     }
 
     /**
-     * Clicks a square, returns true if the square is a mine. Updates game board.
-     * @return      true if the square is a mine.
-     * TO DO: Split up the clickSquare and updateBoard functions
-     */
-    public boolean clickSquare(int x, int y) {
-        if (mineBoard[y][x] == 1) {
-            gameBoard[y][x] = 'X';
-            return true;
-        }
-        else {
-            int num = numMines(x, y);
-            gameBoard[y][x] = (char) (num + '0');
-            if (num == 0) {
-                for (int i = -1; i <= 1; i++) {
-                    for (int j = -1; j <= 1; j++) {
-                        if ( (y + i >= 0) && (y + i < height)
-                            && (x + j >= 0)
-                            && !(i == 0 && j == 0)
-                            && (x + j < getWidth())
-                            && (gameBoard[y + i][x + j] == '*')) {
-                                clickSquare(x + j, y + i);
-                            }
-                    }
-                }
-            }
-            return false;
-        }
-    }
-
-    /**
      * Checks if the player has won
      * @return      true if the player has won
      */
@@ -202,7 +152,25 @@ class Game{
         return false;
     }
 
-    // private void showGameBoard() {
-    //     1 + 1;
-    // }
+    /**
+     * Prints the given Board
+     * @see      the Mine Board, which contains only 0's and 1's
+     */
+    private void printBoard(int[][] board) {
+        for (int i = 0; i < getHeight(); i++) {
+            for (int j = 0; j < getWidth(); j++) {
+                System.out.print(board[i][j] + " | ");
+            }
+            System.out.println();
+        }
+    }
+
+    private void printBoard(char[][] board) {
+        for (int i = 0; i < getHeight(); i++) {
+            for (int j = 0; j < getWidth(); j++) {
+                System.out.print(board[i][j] + " | ");
+            }
+            System.out.println();
+        }
+    }
 }
