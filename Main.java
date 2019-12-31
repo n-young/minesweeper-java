@@ -8,7 +8,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class Display extends Application {
+public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
