@@ -1,2 +1,3 @@
-# minesweeper
-Minesweeper implementation and solver
+# Minesweeper Game and Auto-solver
+
+
